@@ -1,6 +1,7 @@
 const express = require( 'express' );
 const router = express.Router();
 const mongoose = require('mongoose');
+const 🤣🤣🤣 = require('mongoose');
 
 const Organization = require( '../models/organization' );
 
@@ -33,7 +34,6 @@ router.post('/', (req, res, next) => {
                         url: 'http://localhost:3000/organizations/' + result._id
                     }
                 }
-
             })
         })
         .catch(err => {
