@@ -53,7 +53,7 @@ class CreateEvent extends Component {
 
     async onNextClick() {
         this.setState({showCreate: 1});
-        Geocoder.init("AIzaSyBqGVoEhuHlZoX14faSN1Tdhvgy23yLJmA");
+        Geocoder.init("");
         if(this.state.latitude != -1) {
             Geocoder.from(this.props.location)
             .then(json => {
@@ -76,7 +76,7 @@ class CreateEvent extends Component {
     };
 
     async getEventDetails() {
-        Geocoder.init("AIzaSyBqGVoEhuHlZoX14faSN1Tdhvgy23yLJmA");
+        Geocoder.init("");
         try {
             var location;
             await Geocoder.from(this.state.address)
