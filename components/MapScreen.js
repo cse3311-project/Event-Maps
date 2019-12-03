@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Image } from 'react-native';
+import { View, Image, Button, Linking } from 'react-native';
 import ModalDropdown from "react-native-modal-dropdown";
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
@@ -23,6 +23,8 @@ class MapScreen extends Component {
         userName: this.props.navigation.getParam('userName'),
         userId: this.props.navigation.getParam('userId'),
         userEmail: null,
+        markerpressed: false,
+        markercoords: null,
 
         /******************************************************************************* */
         //The following data members are all for <Marker> components.
@@ -76,6 +78,7 @@ class MapScreen extends Component {
     }
 
       this.handleCreateEvent = this.handleCreateEvent.bind(this);
+      this.navigate = this.navigate.bind(this);
     }
 
     handleNavBarFilterSelect = () => {
@@ -111,14 +114,17 @@ class MapScreen extends Component {
 
     //Function called with an event icon is pressed.
     //Shows the decription of the event on the screen.
-    handleEventSelect(i, category) {
-      this.setState({markerDescription: i, markerCategory: category})
+    handleEventSelect(i, category, coordinate) {
+      console.log(coordinate);
+      this.setState({markerDescription: i, markerCategory: category, markerpressed:true, markercoords: coordinate})
     }
 
     handleMapPress(event) {
       this.setState({
         markerSelect: event.nativeEvent.coordinate, 
         markerDescription: -1,
+        markerpressed: false,
+        markercoords: null,
         showFilters: -1,
         showCreate: -1,
         showUser: -1});
@@ -207,6 +213,17 @@ class MapScreen extends Component {
       }
     }
 
+    navigate() {
+      console.log("User Lat:" + this.state.latitude);
+      console.log("User Lon:" + this.state.longitude);
+      console.log(this.state.markercoords);
+      var t1 ='https://www.google.com/maps/search/?api=1&query=';
+      var t2 = this.state.markercoords.latitude.toString() + ',' + this.state.markercoords.longitude.toString();
+      console.log(t2);
+      var url = t1+t2;
+      Linking.openURL(url);
+    }
+
     //**********Component Did Mount Function**********
     async componentDidMount() {
       //this.getUserEvents();
@@ -292,7 +309,7 @@ class MapScreen extends Component {
                       key = {i}
                       coordinate = {markerEventCat1.coordinate}  
                       description = {markerEventCat1.description} 
-                      onPress = { () => this.handleEventSelect(i, markerEventCat1.category) }>
+                      onPress = { () => this.handleEventSelect(i, markerEventCat1.category, markerEventCat1.coordinate) }>
                       
                       <Image 
                         source = {require('./images/educational.png')}
@@ -322,7 +339,7 @@ class MapScreen extends Component {
                       coordinate = {markerEventCat2.coordinate}
                       description = {markerEventCat2.description}
                       //onPress = {() => {this.handleMarkerPress(markerEventCat2.description, markerEventCat2.coordinate)}}>
-                      onPress = { () => this.handleEventSelect(i, markerEventCat2.category) }>
+                      onPress = { () => this.handleEventSelect(i, markerEventCat2.category, markerEventCat2.coordinate) }>
                       
                       <Image
                         source = {require('./images/uta.png')}
@@ -351,7 +368,7 @@ class MapScreen extends Component {
                       key = {i}
                       coordinate = {markerEventCat3.coordinate}  
                       description = {markerEventCat3.description} 
-                      onPress = { () => this.handleEventSelect(i, markerEventCat3.category) }>
+                      onPress = { () => this.handleEventSelect(i, markerEventCat3.category, markerEventCat3.coordinate) }>
                       
                       <Image 
                         source = {require('./images/food.png')}
@@ -380,13 +397,20 @@ class MapScreen extends Component {
                       key = {i}
                       coordinate = {markerEventCat4.coordinate}  
                       description = {markerEventCat4.description} 
-                      onPress = { () => this.handleEventSelect(i, markerEventCat4.category) }>
+                      onPress = { () => this.handleEventSelect(i, markerEventCat4.category, markerEventCat4.coordinate) }>
                       
                       <Image 
                         source = {require('./images/social.png')}
                         style = {styles.eventIconStyle}/> 
                     </Marker>)}})}
           </MapView>
+          
+
+          {this.state.markerpressed && 
+                <View style={styles.NaviagteButton}>
+                    <Button  title="Navigate" onPress={this.navigate}/>
+                </View>}
+          
 
           {/*MapScreen NavigationBar components start here*/}
 
@@ -399,8 +423,7 @@ class MapScreen extends Component {
           {this.state.showCreate == 1 &&
             <CreateEvent
               getEventDetails = {this.handleCreateEvent}
-              location={this.state.markerSelect}
-              /*changeMarkerSelect={this.changeMarkerSelect}*//>}      
+              location={this.state.markerSelect}/>}      
 
           {/*User profile component*/}
           {this.state.showUser == 1 &&

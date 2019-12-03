@@ -9,6 +9,12 @@ export default StyleSheet.create({
       
     },
 
+    NaviagteButton: {
+      position: 'absolute',
+      bottom: 70,
+      right: 25
+    },
+
     horizontalRuleStyle: {
       width: width * 0.75,
       borderBottomColor: "black",

@@ -90,6 +90,11 @@ class CreateEvent extends Component {
             })
             .catch(error => console.warn(error));
             
+            let coords = {
+                latitude: location.lat,
+                longitude: location.lng
+            };
+
             let event = {
                 name: this.state.eventName,
                 description: this.state.eventDescription,
@@ -97,7 +102,7 @@ class CreateEvent extends Component {
                 category: this.state.category,
                 latitude: this.state.latitude,
                 longitude: this.state.longitude,
-                coordinate: location
+                coordinate: coords
             }
 
             this.props.getEventDetails(event);
