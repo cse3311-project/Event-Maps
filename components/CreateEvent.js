@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { View, Text, TextInput, TouchableOpacity, Picker } from 'react-native';
+import Geocoder from 'react-native-geocoding';
 
 import styles from "./Styles";
 
@@ -13,8 +14,20 @@ class CreateEvent extends Component {
             eventDate: null,
             category: "Category",
             categoryColor: "blue",
-            showCreate: -1
+            showCreate: -1,
+            address: null
         }
+        if(this.props.location == null) {
+            this.state.latitude = -1;
+            this.state.longitude = -1;
+        }
+        else {
+            this.state.latitude = this.props.location.latitude;
+            this.state.longitude = this.props.location.longitude;
+        }
+        this.onNextClick = this.onNextClick.bind(this);
+        this.getEventDetails = this.getEventDetails.bind(this);
+
     }
 
     handleCategorySelect(itemValue, itemIndex) {
@@ -38,15 +51,58 @@ class CreateEvent extends Component {
         this.setState({category: itemValue});
     }
 
-    getEventDetails() {
-        let event = {
-            name: this.state.eventName,
-            description: this.state.eventDescription,
-            date: this.state.eventDate,
-            category: this.state.category
+    async onNextClick() {
+        this.setState({showCreate: 1});
+        Geocoder.init("AIzaSyBqGVoEhuHlZoX14faSN1Tdhvgy23yLJmA");
+        if(this.state.latitude != -1) {
+            Geocoder.from(this.props.location)
+            .then(json => {
+                var result = json.results[0].address_components;
+                //console.log(result);
+                var add=''; var i=0;
+                for (const value in result) {
+                     add+= result[i].long_name + ', ';
+                     i++;
+                }
+                //console.log(add);
+                this.setState({address: add});
+            })
+            .catch(error => console.warn(error));
         }
+        else {
+            this.setState({address: "Enter Address"});
+        }
+        //console.log(this.state.showCreate);
+    };
 
-        this.props.getEventDetails(event);
+    async getEventDetails() {
+        Geocoder.init("AIzaSyBqGVoEhuHlZoX14faSN1Tdhvgy23yLJmA");
+        try {
+            var location;
+            await Geocoder.from(this.state.address)
+            .then(json=>{
+                location = json.results[0].geometry.location;
+                console.log(location);
+                this.setState({
+                    latitude: location.latitude,
+                    longitude: location.longitude
+                });
+            })
+            .catch(error => console.warn(error));
+            
+            let event = {
+                name: this.state.eventName,
+                description: this.state.eventDescription,
+                date: this.state.eventDate,
+                category: this.state.category,
+                latitude: this.state.latitude,
+                longitude: this.state.longitude,
+                coordinate: location
+            }
+
+            this.props.getEventDetails(event);
+        }
+        catch(e) {console.warn(e)};
     }
 
     render() {
@@ -73,7 +129,7 @@ class CreateEvent extends Component {
                     <View style = {styles.buttonContainer}>
                         <TouchableOpacity
                             style = {styles.buttonStyle}
-                            onPress = {() => this.setState({showCreate: 1})}>
+                            onPress = {this.onNextClick}>
                             <Text style = {styles.buttonText}>Next</Text>
                         </TouchableOpacity>
                     </View>
@@ -87,7 +143,9 @@ class CreateEvent extends Component {
             
                     <TextInput
                         style = {styles.input}
-                        placeholder = "Time"/>
+                        onChangeText = {(add) => this.setState({address: add})}
+                        //placeholder = {this.state.address}
+                        value= {this.state.address}/>
 
                     <TextInput
                         style = {styles.input}

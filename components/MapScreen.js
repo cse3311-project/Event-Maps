@@ -128,13 +128,14 @@ class MapScreen extends Component {
     //Adds an event icon at selected location.
     async handleCreateEvent(eventDetails) {
       //Create event object.
+      //console.log(this.state.markerSelect);
       let event = {
         username: this.state.userName,
         name: eventDetails.name,
         description: eventDetails.description,
         eventDate: eventDetails.date,
         category: eventDetails.category,
-        coordinate: this.state.markerSelect
+        coordinate: eventDetails.coordinate
       }
 
       //Add new event data to database.
@@ -142,6 +143,8 @@ class MapScreen extends Component {
         let result = await Functions.postEvent(event);
 
         event["_id"] = result.eventId;
+        console.log("Posted Event");
+        console.log(event);
       }
 
       catch (error) {
@@ -395,7 +398,9 @@ class MapScreen extends Component {
           {/*Event Creation Component*/}
           {this.state.showCreate == 1 &&
             <CreateEvent
-              getEventDetails = {this.handleCreateEvent}/>}      
+              getEventDetails = {this.handleCreateEvent}
+              location={this.state.markerSelect}
+              /*changeMarkerSelect={this.changeMarkerSelect}*//>}      
 
           {/*User profile component*/}
           {this.state.showUser == 1 &&
